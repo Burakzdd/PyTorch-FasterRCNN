@@ -11,7 +11,7 @@ import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 import albumentations as A
 from torch.utils.data import DataLoader
-
+import albumentations.pytorch
 def train(train_data_loader, model):
     print('Training')
     global train_itr
@@ -24,7 +24,7 @@ def train(train_data_loader, model):
         
         images = list(image.to(device) for image in images)
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
-
+        
         loss_dict = model(images, targets)
 
         losses = sum(loss for loss in loss_dict.values())
@@ -82,7 +82,12 @@ class SaveBestModel:
                 'optimizer_state_dict': optimizer.state_dict(),
                 }, 'models/best_model.pth')
 
-
+def collate_fn(batch):
+    """
+    To handle the data loading as different images may have different number 
+    of objects and to handle varying size tensors as well.
+    """
+    return tuple(zip(*batch))
 if __name__ == '__main__':
     transforms = A.Compose([
         A.Flip(0.5),
@@ -96,7 +101,7 @@ if __name__ == '__main__':
         'label_fields': ['labels']
     })
     train_dataset = CustomDataset(train_dir, resize_to, resize_to, classes,transforms=transforms)
-    train_loader = DataLoader(train_dataset,batch_size= 4,shuffle=True,num_workers=4)
+    train_loader = DataLoader(train_dataset,batch_size= 4,shuffle=True,num_workers=4, collate_fn=collate_fn)
 
     print(f"Number of training samples: {len(train_dataset)}")
     model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)

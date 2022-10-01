@@ -62,7 +62,7 @@ while(cap.isOpened()):
             boxes = outputs[0]['boxes'].data.numpy()
             print(boxes)
             scores = outputs[0]['scores'].data.numpy()
-            # boxes = boxes[scores >= detection_threshold].astype(np.int32)
+            boxes = boxes[scores >= detection_threshold].astype(np.int32)
             draw_boxes = boxes.copy()
             pred_classes = [classes[i] for i in outputs[0]['labels'].cpu().numpy()]
             for j, box in enumerate(draw_boxes):

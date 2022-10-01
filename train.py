@@ -3,7 +3,7 @@ from config import (
     device, train_dir,resize_to, epochs, out_dir,classes, model_name
 )
 from tqdm.auto import tqdm
-from datasets_yolo import CustomDataset
+from datasets_yolo_format import CustomDataset
 import torch
 import matplotlib.pyplot as plt
 import time
